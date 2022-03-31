@@ -1,3 +1,9 @@
+# ev-questionanswer
+
+What: Qusetion-Answer site. 
+How: Categories-Topics-Comments. Commentators could left comments anonymously.
+Who: Administrator (manage categories, manage users), Manager (manage comments & topics in assigned categories), User, Anonymous.
+
 # Install
 
 1. Restore dump file `schema.sql`
