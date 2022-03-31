@@ -1,0 +1,193 @@
+<?php
+
+/**
+ * @var View $this
+ * @var Arr $validation
+ * @var Topic $topic
+ * @var Category $category
+ * @var array $tmpAttaches
+ * @var mixed $maxFilesize
+ */
+
+use App\Util\Arr;
+use Phalcon\Mvc\View;
+
+?>
+<nav>
+    <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+        <li class="breadcrumb-item">
+            <i class="bi-house"></i>
+            <a href="<?= $this->url->get(['for' => 'category.list']) ?>">
+                Categories
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <i class="bi-bookshelf"></i>
+            <a href="<?= $this->url->get(['for' => 'category.show', 'id' => $category->id]) ?>">
+                <?= $category->title ?>
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <i class="bi-book"></i>
+            New topic
+        </li>
+    </ol>
+</nav>
+
+<h2 class="h4 mt-3 mb-3 me-3">
+    <i class="bi-book text-tertiary"></i>
+    Create topic
+</h2>
+
+<div class="card card-body border-0 shadow">
+    <form method="post" action="<?= $this->url->get(['for' => 'topic.create', 'category' => $topic->category->id]) ?>"
+          enctype="multipart/form-data" id="topicForm">
+        <div class="mb-3">
+            <label for="setTitle">Title</label>
+            <input type="text" id="setTitle" name="title"
+                   class="form-control <?= $validation['title'] ? 'is-invalid' : '' ?>"
+                   value="<?= $topic->title ?>">
+
+            <div class="invalid-feedback">
+                <i class="bi-exclamation-circle"></i>
+                <?= $validation['title'] ?>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="setText">Text</label>
+            <textarea class="form-control <?= $validation['text'] ? 'is-invalid' : '' ?>" name="text" id="setText"
+                      cols="30" rows="10"><?= $topic->text ?></textarea>
+            <div class="invalid-feedback">
+                <i class="bi-exclamation-circle"></i>
+                <?= $validation['text'] ?>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="setAttach">Attachments</label>
+            <div class="text-muted small">
+                <i class="bi-info-circle"></i>
+                Max. file size: <?= $maxFilesize ?>MB
+            </div>
+            <?php if (count($tmpAttaches)): ?>
+                <div class="alert alert-indigo small">
+                    Already attached
+                    <ul>
+                        <?php foreach ($tmpAttaches as $k => $tmp): ?>
+                            <li>
+                                <?= $tmp['name'] ?>
+                                <input type="hidden" name="tmp[<?= $k ?>][url]" value="<?= $tmp['url'] ?>">
+                                <input type="hidden" name="tmp[<?= $k ?>][name]" value="<?= $tmp['name'] ?>">
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+            <div class="input-group">
+                <div class="input-group-text">
+                    <i class="bi-file-earmark"></i>
+                </div>
+                <input type="file" class="form-control" multiple id="setAttach" name="attachments[]">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="bi-check-lg"></i>
+            Save
+        </button>
+        <button type="reset" class="btn btn-secondary ms-4">
+            <i class="bi-x-lg"></i>
+            Reset
+        </button>
+        <a href="<?= $this->url->get(['for' => 'category.show', 'id' => $category->id]) ?>" class="btn btn-secondary">
+            <i class="bi-arrow-left"></i>
+            Go back to category
+        </a>
+</div>
+
+<script src="/assets/vendor/tinymce/tinymce.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let cb = () => {
+        }
+
+        const form = document.querySelector('#topicForm')
+        const setText = document.querySelector('#setText')
+        const setAttach = document.querySelector('#setAttach')
+        const txtEl = document.createElement('input')
+        const jsAttach = document.createElement('input')
+
+        txtEl.type = 'hidden'
+        txtEl.name = 'text'
+        setText.name = ''
+        jsAttach.type = 'file'
+        jsAttach.accept = 'image/*'
+
+        form.append(txtEl)
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault()
+            const imgs = await tinymce.activeEditor.editorUpload.scanForImages()
+            const temp = document.createElement('template')
+            temp.innerHTML = tinymce.activeEditor.getContent()
+
+            for (const img of imgs) {
+                const id = img.blobInfo.id()
+                const i = temp.content.querySelector('#' + id)
+                if (!i) continue
+                i.src = img.blobInfo.blob().name
+            }
+            txtEl.value = temp.innerHTML
+            form.submit()
+        })
+        jsAttach.addEventListener('change', () => {
+            const f = jsAttach.files[0]
+            const r = new FileReader
+            const cache = tinymce.activeEditor.editorUpload.blobCache
+
+            r.onload = () => {
+                const blobId = 'blobid' + (new Date).getTime()
+                const blobInfo = cache.create(
+                    blobId,
+                    f,
+                    r.result.split(',')[1].trim()
+                )
+                cache.add(blobInfo)
+                cb(blobInfo.blobUri())
+                cb = () => {
+                }
+            }
+            r.readAsDataURL(f)
+        })
+
+        tinymce.init({
+            selector: '#setText',
+            menubar: false,
+            statusbar: false,
+            plugins: 'image',
+            toolbar: 'bold italic underline | image',
+            file_picker_types: 'image',
+            relative_urls: false,
+            remove_script_host: true,
+            convert_urls: false,
+            file_picker_callback(_cb) {
+                cb = _cb
+                jsAttach.click()
+            },
+            setup: editor => {
+                editor.on('NodeChange', async e => {
+                    if (e.element.nodeName !== 'IMG') return
+                    setAttach.value = null
+                    const imgs = await tinymce.activeEditor.editorUpload.scanForImages()
+                    const dtr = new DataTransfer
+                    for (const img of imgs) {
+                        img.image.id = img.blobInfo.id()
+                        dtr.items.add(img.blobInfo.blob())
+                    }
+                    setAttach.files = dtr.files
+                })
+            }
+        })
+    })
+</script>

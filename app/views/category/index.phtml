@@ -1,0 +1,57 @@
+<?php
+/**
+ * @var View $this
+ * @var Category[] $catlist
+ * @var User $user
+ */
+
+use Phalcon\Mvc\View;
+
+?>
+    <div class="d-flex align-items-center justify-content-between">
+        <h2 class="h4 mt-3 mb-3">
+            <i class="bi-quora text-tertiary"></i>
+            Questions & Answers
+        </h2>
+    </div>
+<?php if (!count($catlist)): ?>
+    <div class="h3 text-muted text-center">No categories</div>
+<?php else: ?>
+    <div class="card card-body border-0 shadow">
+        <?php foreach ($catlist as $category): ?>
+            <div class="mb-3 list-group">
+                <div class="list-group-item border-bottom list-group-item-action">
+                    <a class="h4 d-block mb-0"
+                       href="<?= $this->url->get(['for' => 'category.show', 'id' => $category->id]) ?>">
+                        <?= $category->title ?>
+                    </a>
+                </div>
+
+                <?php if (count($category->last5Topics)): ?>
+                    <?php foreach ($category->last5Topics as $topic): ?>
+                        <div class="list-group-item list-group-item-action d-flex align-items-baseline justify-content-between text-break">
+                            <a class="h6 flex-grow-1 mb-0"
+                               href="<?= $this->url->get(['for' => 'topic.show', 'id' => $topic->id]) ?>">
+                                <?= $topic->title ?>
+                            </a>
+                            <div class="flex-nowrap text-nowrap">
+                            <span class="small text-muted">
+                            <i class="bi-clock-history"></i>
+                            <?= $topic->created ?>
+                        </span>
+                                <?php if ($user && $this->acl->isAllowed($user->role, Topic::class, 'delete', ['topic' => $topic])): ?>
+                                    <a href="<?= $this->url->get(['for' => 'topic.delete', 'id' => $topic->id]) ?>"
+                                       class="btn btn-warning btn-sm text-nowrap">
+                                        <i class="bi-trash-fill"></i>
+                                        Remove
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+
+            </div>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>

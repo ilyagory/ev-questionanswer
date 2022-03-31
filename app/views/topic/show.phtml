@@ -1,0 +1,112 @@
+<?php
+/**
+ * @var View $this
+ * @var Topic $topic
+ * @var Category $category
+ * @var Comment[] $comments
+ * @var User $user
+ * @var Arr $validation
+ * @var Comment $currentComment
+ */
+
+use App\Util\Arr;
+use Phalcon\Mvc\View;
+
+if (!isset($validation)) $validation = new Arr;
+
+?>
+<ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+    <li class="breadcrumb-item">
+        <i class="bi-house"></i>
+        <a href="<?= $this->url->get(['for' => 'category.list']) ?>">
+            Categories
+        </a>
+    </li>
+    <li class="breadcrumb-item">
+        <i class="bi-bookshelf"></i>
+        <a href="<?= $this->url->get(['for' => 'category.show', 'id' => $category->id]) ?>">
+            <?= $category->title ?>
+        </a>
+    </li>
+    <li class="breadcrumb-item">
+        <i class="bi-book"></i>
+        <a href="<?= $this->url->get(['for' => 'topic.show', 'id' => $topic->id]) ?>">
+            <?= $topic->title ?>
+        </a>
+    </li>
+</ol>
+
+<div class="d-flex align-items-center justify-content-between">
+    <h2 class="h4 mt-3 mb-3 me-3 text-break d-flex align-items-start">
+        <i class="bi-book text-tertiary me-2"></i>
+        <?= $topic->title ?>
+    </h2>
+    <div class="text-nowrap">
+        <a class="btn btn-primary text-nowrap"
+           href="<?= $this->url->get(['for' => 'comment.create', 'topic' => $topic->id]) ?>">
+            <i class="bi-chat-fill"></i>
+            Add comment
+        </a>
+        <?php if ($this->acl->isAllowed($user->role, Topic::class, 'delete', ['topic' => $topic])): ?>
+            <a href="<?= $this->url->get(['for' => 'topic.delete', 'id' => $topic->id]) ?>" class="btn btn-secondary">
+                <i class="bi-trash"></i>
+                Delete topic
+            </a>
+        <?php endif; ?>
+    </div>
+</div>
+
+<?php if ($this->flashSession->has('warning')): ?>
+    <div class="alert alert-warning">
+        <i class="bi-exclamation-triangle"></i>
+        <?php $this->flashSession->output(true) ?>
+    </div>
+<?php endif; ?>
+
+<?php $this->partial('topic/_content') ?>
+
+<?php if ($comments->last): ?>
+    <div id="comments">
+        <div class="d-flex">
+            <h3 class="h4 text-center flex-grow-1">
+                <i class="bi-chat-dots"></i>
+                Comments
+            </h3>
+        </div>
+        <?php foreach ($comments->items as $comment) {
+            $this->partial('comment/_listitem', ['comment' => $comment]);
+        } ?>
+    </div>
+<?php endif; ?>
+
+<div class="mt-2 d-flex align-items-center justify-content-between">
+    <?php if ($comments->last) {
+        $this->partial('_pagination', ['url' => ['for' => 'topic.show', 'id' => $topic->id], 'pager' => $comments]);
+    } ?>
+</div>
+<div class="mt-2 card">
+    <form action="<?= $this->url->get(['for' => 'comment.create', 'topic' => $topic->id]) ?>" method="post"
+          class="card-body">
+        <input type="hidden" name="current_page" value="<?= $comments->current ?>">
+        <div class="mb-3">
+            <textarea class="form-control <?= $validation['text'] ? 'is-invalid' : '' ?>"
+                      name="text"
+                      cols="30"
+                      rows="10"></textarea>
+            <div class="invalid-feedback">
+                <i class="bi-exclamation-circle"></i>
+                <?= $validation['text'] ?>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi-check"></i>
+            Leave a comment
+        </button>
+        <?php if ($this->acl->isAllowed($user->role, Topic::class, 'delete', ['topic' => $topic])): ?>
+            <a href="<?= $this->url->get(['for' => 'topic.delete', 'id' => $topic->id]) ?>" class="btn btn-warning">
+                <i class="bi-trash"></i>
+                Delete topic
+            </a>
+        <?php endif; ?>
+    </form>
+</div>

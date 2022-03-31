@@ -1,0 +1,16 @@
+.idea
+.git
+.gitignore
+composer.json
+composer.lock
+README.md
+FAQ.htm
+LICENSE.txt
+SECURITY.md
+LICENSE
+changelog.htm
+install.txt
+license.txt
+app/config.ini
+app/config.example.ini
+public/tmp

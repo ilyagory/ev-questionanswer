@@ -1,0 +1,106 @@
+<?php
+/**
+ * @var View $this
+ * @var User $item
+ * @var Arr $validation
+ * @var array $pwd
+ */
+
+use App\Util\Arr;
+use Phalcon\Mvc\View;
+
+$action = $item->id ? 'admin.user.edit' : 'admin.user.create';
+$headin = $item->id ? 'Edit user' : 'Create user';
+
+?>
+
+<div class="h2">
+    <i class="bi-person-plus"></i>
+    <?= $headin ?>
+</div>
+
+<div class="card card-body shadow border-0">
+
+    <?php $this->flashSession->output(true) ?>
+
+    <form action="<?= $this->url->get(['for' => $action, 'id' => $item->id]) ?>" method="post">
+        <div class="row">
+            <div class="col">
+                <div class="mb-3">
+                    <label for="setUsername">Username</label>
+                    <input type="text" name="username"
+                           class="form-control <?= $validation['username'] ? 'is-invalid' : '' ?>" id="setUsername"
+                           value="<?= $item->username ?>">
+                    <div class="invalid-feedback">
+                        <i class="bi-exclamation-circle"></i>
+                        <?= $validation['username'] ?>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="setRole">Role</label>
+                    <select id="setRole" name="role"
+                            class="form-control <?= $validation['role'] ? 'is-invalid' : '' ?>">
+                        <?php foreach ([User::ROLE_USER, User::ROLE_MODER, User::ROLE_ADMIN] as $roleid): ?>
+                            <option value="<?= $roleid ?>" <?= $item->role == 'role' . $roleid ? 'selected' : '' ?>>
+                                <?= User::$roleNames[$roleid] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="invalid-feedback">
+                        <i class="bi-exclamation-circle"></i>
+                        <?= $validation['role'] ?>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="mb-3">
+                    <label for="setPwd">
+                        Password
+                        <?php if ($item->id): ?>
+                            <span class="text-muted small mt-1">
+                                <i class="bi-info-circle"></i>
+                                Fill password to change it.
+                            </span>
+                        <?php endif; ?>
+                    </label>
+                    <input type="password" name="pwd" class="form-control <?= $validation['pwd'] ? 'is-invalid' : '' ?>"
+                           id="setPwd">
+                    <div class="invalid-feedback">
+                        <i class="bi-exclamation-circle"></i>
+                        <?= $validation['pwd'] ?>
+                    </div>
+                    <div class="text-muted small mt-1">
+                        <i class="bi-info-circle"></i>
+                        Min length: <?= $pwd['min'] ?>; Max length: <?= $pwd['max'] ?>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="setPwdConfirm">Confirm Password</label>
+                    <input type="password" name="pwdConfirm"
+                           class="form-control <?= $validation['pwdConfirm'] ? 'is-invalid' : '' ?>"
+                           id="setPwdConfirm">
+                    <div class="invalid-feedback">
+                        <i class="bi-exclamation-circle"></i>
+                        <?= $validation['pwdConfirm'] ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" type="submit">
+            <i class="bi-check"></i>
+            Save
+        </button>
+        <a href="<?= $this->url->get(['for' => 'admin.user.index']) ?>" class="btn btn-warning">
+            <i class="bi-arrow-left"></i>
+            Go back
+        </a>
+        <?php if ($item->id): ?>
+            <a href="<?= $this->url->get(['for' => 'admin.user.delete', 'id' => $item->id]) ?>"
+               class="btn btn-danger ms-3">
+                <i class="bi-trash"></i>
+                Remove
+            </a>
+        <?php endif; ?>
+    </form>
+</div>

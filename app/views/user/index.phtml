@@ -1,0 +1,60 @@
+<?php
+/**
+ * @var User[] $users
+ * @var View $this
+ * @var User $user current logged user
+ */
+
+use Phalcon\Mvc\View;
+
+?>
+<div class="d-flex justify-content-between align-items-center">
+    <div class="h2 mb-0">
+        <i class="bi-people-fill"></i>
+        Users
+    </div>
+    <a href="<?= $this->url->get(['for' => 'admin.user.create']) ?>" class="btn btn-primary">
+        <i class="bi-plus"></i>
+        New user
+    </a>
+</div>
+<div class="card shadow border-0 mt-3">
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <td>ID</td>
+            <td>Name</td>
+            <td>Role</td>
+            <td>
+                <i class="bi-gear-fill"></i>
+            </td>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($users as $usr): ?>
+            <tr>
+                <td><?= $usr->id ?></td>
+                <td>
+                    <?= $usr->username ?>
+                    <?= $usr->id === $user->id ? '&nbsp;<span class="text-muted small">(You)</span>' : '' ?>
+                </td>
+                <td><?= $usr->roleName ?></td>
+                <td>
+                    <?php if ($usr->id !== $user->id): ?>
+                        <a class="btn btn-danger btn-sm"
+                           href="<?= $this->url->get(['for' => 'admin.user.delete', 'id' => $usr->id]) ?>">
+                            <i class="bi-trash-fill"></i>
+                            Delete
+                        </a>
+                    <?php endif; ?>
+                    <a class="btn btn-primary btn-sm"
+                       href="<?= $this->url->get(['for' => 'admin.user.edit', 'id' => $usr->id]) ?>">
+                        <i class="bi-pencil-fill"></i>
+                        Edit
+                    </a>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>

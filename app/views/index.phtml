@@ -1,0 +1,103 @@
+<?php
+/**
+ * @var View $this
+ * @var User $user
+ */
+
+use Phalcon\Mvc\View;
+
+?>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QuestionAnswer</title>
+    <link rel="icon" href="/assets/quora.svg">
+    <link type="text/css" rel="stylesheet" href="/assets/volt.css">
+    <link type="text/css" rel="stylesheet" href="/assets/bootstrap-icons.css">
+    <link type="text/css" rel="stylesheet" href="/assets/application.css">
+</head>
+<body>
+<nav class="navbar navbar-dark shadow small navbar-expand py-1 bg-primary mb-2">
+    <div class="container-fluid">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a href="/" class="nav-link">
+                    Questions & Answers
+                </a>
+            </li>
+            <?php if ($user && $this->acl->isAllowed($user->role, 'admin', 'admin')): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $this->url->get(['for' => 'admin.user.index']) ?>">
+                        Users
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="<?= $this->url->get(['for' => 'admin.category.index']) ?>" class="nav-link">
+                        Categories
+                    </a>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+    <div class="container-fluid justify-content-end">
+        <?php if ($user != false): ?>
+
+            <div class="navbar-text me-3">
+                <i class="bi-person-fill"></i>
+                <?= $user->username ?> <span class="small text-muted">(<?= $user->roleName ?>)</span>
+            </div>
+            <a class="btn btn-purple" href="<?= $this->url->get(['for' => 'user.logout']) ?>">
+                <i class="bi-door-open-fill"></i>
+                Logout
+            </a>
+
+        <?php else: ?>
+            <a href="<?= $this->url->get(['for' => 'user.login']) ?>" class="btn btn-purple">
+                <i class="bi-door-open-fill"></i>
+                Signin
+            </a>
+        <?php endif; ?>
+    </div>
+</nav>
+<div class="container">
+    <script>
+        function toggleButtons() {
+            const btns = this.querySelectorAll('.btn')
+            for (const btn of btns) {
+                if (btn.disabled === true) {
+                    btn.disabled = false
+                } else if (btn.disabled === false) {
+                    btn.disabled = true
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const forms = document.querySelectorAll('form.sync')
+            for (const form of forms) {
+                form.addEventListener('submit', function (e) {
+                    if (form.__inProgress === true) {
+                        e.preventDefault()
+                        e.stopImmediatePropagation()
+                        toggleButtons.call(this)
+                        return false
+                    }
+
+                    form.__inProgress = true
+                    toggleButtons.call(this)
+                })
+            }
+        })
+    </script>
+    <?= $this->getContent() ?>
+</div>
+<footer class="footer">
+    <div class="container">
+        <div class="footer-brand text-center mt-2">
+            <i class="bi-cloud"></i>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

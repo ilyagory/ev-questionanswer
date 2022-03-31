@@ -1,0 +1,77 @@
+<?php
+/**
+ * @var View $this
+ * @var Arr $validation
+ * @var Category $category
+ * @var array $moders
+ * @var array $category_snapshot
+ */
+
+use App\Util\Arr;
+use Phalcon\Mvc\View;
+
+$action = $category->id ? 'admin.category.edit' : 'admin.category.create';
+$goBackAction = 'admin.category.index';
+
+?>
+<nav>
+    <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+        <li class="breadcrumb-item">
+            <i class="bi-house"></i>
+            <a href="<?= $this->url->get(['for' => 'category.list']) ?>">
+                Categories
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <?php if ($category->id): ?>
+                <i class="bi-bookshelf"></i>
+                <a href="<?= $this->url->get(['for' => 'category.show', 'id' => $category->id]) ?>">
+                    <?= $category_snapshot['title'] ?>
+                </a>
+            <?php else: ?>
+                <i class="bi-plus-circle"></i>
+                Create category
+            <?php endif; ?>
+        </li>
+    </ol>
+</nav>
+<h2 class="h4 mt-3 mb-3">
+    <?php if ($category->id): ?>
+        <i class="bi-bookshelf text-tertiary"></i>
+        Edit category
+    <?php else: ?>
+        <i class="bi-plus-circle text-tertiary"></i>
+        New category
+    <?php endif; ?>
+</h2>
+
+<div class="card card-body border-0 shadow">
+    <form method="post" action="<?= $this->url->get(['for' => $action, 'id' => $category->id]) ?>">
+        <label for="setTitle">Category title</label>
+        <input type="text" id="setTitle" name="title"
+               class="form-control <?= $validation['title'] ? 'is-invalid' : '' ?>"
+               value="<?= $category->title ?>">
+        <div class="invalid-feedback">
+            <i class="bi-exclamation-circle"></i>
+            <?= $validation['title'] ?>
+        </div>
+
+        <label for="setModers" class="mt-3">Select moderators</label>
+        <?php foreach ($moders as $moder): ?>
+            <div class="form-check">
+                <input type="checkbox" name="moders[]" value="<?= $moder['id'] ?>" class="form-check-input"
+                       id="setModer<?= $moder['id'] ?>" <?= $moder['selected'] ? 'checked' : '' ?>>
+                <label for="setModer<?= $moder['id'] ?>"><?= $moder['username'] ?></label>
+            </div>
+        <?php endforeach; ?>
+
+        <button type="submit" class="btn btn-primary mt-3">
+            <i class="bi-check-lg"></i>
+            Save
+        </button>
+        <a href="<?= $this->url->get(['for' => $goBackAction, 'id' => $category->id]) ?>" class="btn btn-warning mt-3">
+            <i class="bi-arrow-left"></i>
+            Go back
+        </a>
+    </form>
+</div>

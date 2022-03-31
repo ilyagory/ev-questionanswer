@@ -1,0 +1,90 @@
+<?php
+/**
+ * @var View $this
+ * @var Topic $topic
+ * @var Comment $comment
+ * @var Arr $validation
+ */
+
+use App\Util\Arr;
+use App\Util\Html;
+use Phalcon\Mvc\View;
+
+$action = $comment->id ? 'comment.edit' : 'comment.create';
+
+?>
+<ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+    <li class="breadcrumb-item">
+        <i class="bi-house"></i>
+        <a href="<?= $this->url->get(['for' => 'category.list']) ?>">
+            Categories
+        </a>
+    </li>
+    <li class="breadcrumb-item">
+        <i class="bi-bookshelf"></i>
+        <a href="<?= $this->url->get(['for' => 'category.show', 'id' => $comment->topic->category->id]) ?>">
+            <?= $comment->topic->category->title ?>
+        </a>
+    </li>
+    <li class="breadcrumb-item">
+        <i class="bi-book"></i>
+        <a href="<?= $this->url->get(['for' => 'topic.show', 'id' => $comment->topic->id]) ?>">
+            <?= $comment->topic->title ?>
+        </a>
+    </li>
+    <li class="breadcrumb-item">
+        <i class="bi-chat-text"></i>
+        Add comment
+    </li>
+</ol>
+
+<h2 class="h4 mt-3 mb-3">
+    <i class="bi-pencil text-tertiary"></i>
+    <span class="text-muted">Comment on</span> <a
+            href="<?= $this->url->get(['for' => 'topic.show', 'id' => $topic->id]) ?>"><?= $comment->topic->title ?></a>
+</h2>
+
+<?php if ($comment->quoted): ?>
+    <div class="mb-3">
+        <?php $this->partial('comment/_listitem', ['comment' => $comment->quotedComment, 'quoted' => false, 'isQuoted' => true]) ?>
+    </div>
+<?php else: ?>
+    <?php $this->partial('topic/_content', ['topic' => $comment->topic]) ?>
+<?php endif; ?>
+
+<div class="card card-body border-0 shadow">
+    <form method="post"
+          action="<?= $this->url->get(['for' => $action, 'topic' => $topic->id, 'id' => $comment->id]) ?>">
+        <input type="hidden" name="quoted" value="<?= $this->request->getQuery('quoted', 'int', 0) ?>">
+        <div class="mb-3">
+            <textarea tabindex="1" autofocus class="form-control <?= $validation['text'] ? 'is-invalid' : '' ?>"
+                      name="text"
+                      cols="30"
+                      rows="10"><?= $comment->text ?></textarea>
+            <div class="invalid-feedback">
+                <i class="bi-exclamation-circle"></i>
+                <?= $validation['text'] ?>
+            </div>
+        </div>
+
+        <?php if ($comment->id): ?>
+            <div class="d-flex align-items-center">
+                <?php if ($comment->author): ?>
+                    <div class="text-muted me-3 small">
+                        <i class="bi-person-fill"></i>
+                        <?= $comment->owner->username ?>
+                    </div>
+                <?php endif; ?>
+                <div class="text-muted small">
+                    <i class="bi-clock-history"></i>
+                    <?= $comment->created ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <button type="submit" class="btn btn-primary btn-lg mt-3">
+            <i class="bi-check"></i>
+            Save
+        </button>
+    </form>
+</div>

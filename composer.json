@@ -1,0 +1,13 @@
+{
+  "name": "abc/questionanswer",
+  "require": {
+    "php": "^7.3",
+    "ext-phalcon": "^3.4",
+    "ext-pdo": "*",
+    "ezyang/htmlpurifier": "^4.14",
+    "ext-dom": "*"
+  },
+  "require-dev": {
+    "phalcon/ide-stubs": "^3.4"
+  }
+}

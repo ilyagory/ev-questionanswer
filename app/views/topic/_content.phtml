@@ -1,0 +1,39 @@
+<?php
+/**
+ * @var Topic $topic
+ * @var Attach[] $attaches
+ * @var View $this
+ */
+
+use Phalcon\Mvc\View;
+
+?>
+<div class="card card-body border-0 shadow mb-3">
+    <div class="lead mb-3 topic-content-text">
+        <?= $topic->text ?>
+    </div>
+
+    <?php if (count($topic->attaches)): ?>
+        <div class="h4 text-muted">Attachments</div>
+        <div class="mb-3">
+            <?php foreach ($topic->attaches as $attach): ?>
+                <figure class="figure">
+                    <a href="<?= $this->url->get(['for' => 'attach.get', 'id' => $attach->id]) ?>" target="_blank">
+                        <?php if (strpos($attach->mime, 'image/') === 0): ?>
+                            <img alt="<?= $attach->origname ?>" class="img-thumbnail img-fluid rounded"
+                                 style="max-width: 250px"
+                                 src="<?= $this->url->get(['for' => 'attach.get', 'id' => $attach->id]) ?>"/>
+                        <?php else: ?>
+                            <i class="bi-file-earmark"></i>
+                            <?= $attach->origname ?>
+                        <?php endif; ?>
+                    </a>
+                </figure>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+    <div class="text-muted">
+        <i class="bi-clock-history"></i>
+        <?= $topic->created ?>
+    </div>
+</div>

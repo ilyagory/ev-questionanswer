@@ -1,0 +1,67 @@
+<?php
+/**
+ * @var Comment $comment
+ * @var View $this
+ * @var User $user
+ * @var bool $quoted
+ * @var bool $isQuoted
+ */
+
+use App\Util\Html;
+use Phalcon\Mvc\View;
+
+$topic = $comment->getRelated('topic');
+$quoted = $quoted ?? true;
+$isQuoted = $isQuoted ?? false;
+?>
+<div class="card border-0 shadow mt-3">
+    <?php if ($isQuoted): ?>
+        <div class="card-header bg-gray-50">Quoted comment</div>
+    <?php endif; ?>
+
+    <div class="card-body ">
+        <?= Html::nl2p($comment->text) ?>
+        <div class="mt-2 small d-flex align-items-center justify-content-between text-nowrap">
+            <div class="d-flex">
+                <?php if ($comment->author): ?>
+                    <div class="text-muted me-4">
+                        <i class="bi-person-fill"></i>
+                        <?= $comment->owner->username ?>
+                    </div>
+                <?php endif; ?>
+                <div class="text-muted me-4">
+                    <i class="bi-clock-history"></i>
+                    <?= $comment->created ?>
+                </div>
+            </div>
+            <div class="btn-group btn-group-sm">
+                <a href="<?= $this->url->get(['for' => 'comment.create', 'topic' => $topic->id], ['quoted' => $comment->id]) ?>"
+                   class="btn btn-outline-primary">
+                    <i class="bi-chat-quote-fill"></i>
+                    Quote
+                </a>
+                <?php if ($quoted && !empty($comment->quoted)): ?>
+                    <a class="btn btn-outline-info"
+                       href="<?= $this->url->get(['for' => 'comment.show', 'id' => $comment->quoted]) ?>">
+                        <i class="bi-link"></i>
+                        To quoted
+                    </a>
+                <?php endif; ?>
+                <?php if ($this->acl->isAllowed($user->role, Comment::class, 'edit', ['comment' => $comment])): ?>
+                    <a class="btn btn-outline-purple"
+                       href="<?= $this->url->get(['for' => 'comment.edit', 'id' => $comment->id]) ?>">
+                        <i class="bi-pencil-fill"></i>
+                        Edit
+                    </a>
+                <?php endif; ?>
+                <?php if ($this->acl->isAllowed($user->role, Comment::class, 'delete', ['comment' => $comment])): ?>
+                    <a class="btn btn-warning"
+                       href="<?= $this->url->get(['for' => 'comment.delete', 'id' => $comment->id]) ?>">
+                        <i class="bi-trash-fill"></i>
+                        Remove
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>

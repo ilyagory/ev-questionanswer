@@ -1,0 +1,33 @@
+<?php
+/**
+ * @var View $this
+ *
+ */
+
+use Phalcon\Mvc\View;
+
+?>
+<div class="h2 text-center mt-3 mb-3">Signin</div>
+<div class="card card-body w-50 mx-auto mt-auto">
+    <?php if (!empty($err)): ?>
+        <div class="alert alert-warning">
+            <i class="bi-exclamation-circle"></i>
+            <?= $err ?>
+        </div>
+    <?php endif; ?>
+    <form action="<?= $this->url->get(['for' => 'user.login']) ?>" method="post">
+        <div class="mb-3">
+            <label for="loginName">Username</label>
+            <input type="text" class="form-control" name="username" id="loginName">
+        </div>
+        <div class="mb-3">
+            <label for="loginPassword">Password</label>
+            <input type="password" class="form-control" name="password" id="loginPassword">
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="bi-check"></i>
+            Login
+        </button>
+    </form>
+</div>
